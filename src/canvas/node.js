@@ -2,6 +2,14 @@ import {Node} from 'butterfly-dag';
 import * as ReactDOM from 'react-dom';
 import $ from 'jquery';
 import * as _ from 'lodash';
+import { Tooltip } from "antd";
+import {
+  BorderOuterOutlined,
+  DownSquareOutlined,
+  PlusCircleOutlined,
+  StarOutlined,
+  NodeExpandOutlined,
+} from "@ant-design/icons";
 
 export default class TableNode extends Node {
   constructor(opts) {
@@ -52,10 +60,13 @@ export default class TableNode extends Node {
       node.css('left', obj.left);
     }
 
+    
+
 
     this._createTableName(node); // 表名
-    this._createExtIcon(node);
+    
     this._createFields(node); // 字段
+    this._attachEvent()
     return node[0];
   }
   collapse(state) {
@@ -94,17 +105,20 @@ export default class TableNode extends Node {
   }
   _createTableName(container = $(this.dom)) {
     let title = _.get(this, 'options.name');
+    let id = _.get(this, 'options.id');
     let titleRender = _.get(this, 'options._titleRender');
     let operator = _.get(this, 'options._operator');
-    let titleCom = $('<div class="title-con"></div>');
+    let titleCom = $(`<div class="title-con"   title="${id}"></div>`);
     let titleDom = null;
-
+    let schema = id.split(".", 2);
     // 渲染title
     if (titleRender) {
       titleDom = $(`<div class="title"></div>`);
-      ReactDOM.render(titleRender(title, this), titleDom[0]);
+      ReactDOM.render(titleRender(title, this,schema), titleDom[0]);
     } else if (title) {
-      titleDom = $(`<div class="title">${title}</div>`);
+      
+      titleDom = $(`<div class="title" title="${id}"><image href="https://raw.githubusercontent.com/linkedin/datahub/master/datahub-web-react/src/images/bigquerylogo.png" height="32" width="32" x="-84" y="-16"></image>${title}<div>`);
+      
       titleDom.css({
         'height': this.TITLE_HEIGHT + 'px',
         'line-height': this.TITLE_HEIGHT + 'px'
@@ -221,42 +235,7 @@ export default class TableNode extends Node {
     return result;
   }
 
-  _createExtIcon(container = this.dom) {
-    let titleDom = $(container).find('.title');
-    let titleIcon = $('<span class="title-icon-con"></span>');
-    // 展开收缩icon
-    let collapseIcon = $('<i class="table-build-icon table-build-icon-xiala"></i>');
-    collapseIcon.on('click', (e) => {
-      if (this.status === 'collapse') {
-        this.emit('custom.node.expand', {
-          nodeId: this.id
-        });
-      } else {
-        this.emit('custom.node.collapse', {
-          nodeId: this.id
-        });
-      }
-    });
-    titleIcon.append(collapseIcon);
-    // 删除icon
-    let deleteIcon = $('<i class="table-build-icon table-build-icon-canvas-cuo"></i>');
-    deleteIcon.on('click', (e) => {
-      this.emit('custom.node.delete', {
-        node: this
-      });
-    });
-    titleIcon.append(deleteIcon);
-    let extIcon = $('<span class="title-ext-icon"></span>');
-    let titleIconRender = _.get(this, 'options._config.titleExtIconRender');
-    if (titleIconRender) {
-      titleIcon.prepend(extIcon);
-      ReactDOM.render(
-        titleIconRender(this.options),
-        extIcon[0]
-      );
-    }
-    titleDom.append(titleIcon);
-  }
+  
   _createNodeEndpoint(isInit) {
     // 给节点add endpoint
     if (isInit) {
@@ -294,5 +273,32 @@ export default class TableNode extends Node {
         });
       }
     });
+
+    
   }
+
+  _attachEvent() {
+    $(this.expandBtn).on('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (this.collapsed) {
+        // 可以在这里向后端请求数据,把node穿进去expand里面
+        this.expand();
+      } else {
+        this.collapse();
+      }
+    });
+
+    $(this.addIcon).on('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.emit('events', {
+        type: 'custom:addSubNode',
+        data: {
+          parent: this.id
+        }
+      });
+    });
+  }
+
 }

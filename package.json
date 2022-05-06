@@ -1,6 +1,6 @@
 {
-  "name": "MSDataLinage",
-  "version": "1.0.0",
+  "name": "msdatalineage",
+  "version": "1.0.3",
   "description": "MSDataLinage-",
   "main": "dist/index.js",
   "pack": "pack/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.alibaba-inc.com:DataQ-FE-Components/butterfly-data-mapping.git"
+    "url": ""
   },
   "keywords": [
     "SF"
@@ -19,7 +19,8 @@
   "author": "MS",
   "license": "MIT",
   "dependencies": {
-    "butterfly-dag": ">=4.0.0"
+    "butterfly-dag": ">=4.0.0",
+    "npmrc": "^1.1.1"
   },
   "peerDependencies": {
     "butterfly-dag": ">=4.0.0",
@@ -54,5 +55,8 @@
     "rollup-plugin-typescript2": "~0.29.0",
     "rollup-plugin-url": "~3.0.1",
     "typescript": "~4.1.3"
+  },
+  "directories": {
+    "example": "example"
   }
 }

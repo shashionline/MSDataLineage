@@ -174,6 +174,12 @@ export default class LineageDag extends React.Component<ComProps, any> {
         let node = data.node;
         this.canvas.focus(node.id);
         console.log("system.node.click");
+       
+        
+        
+        
+        console.log("Action:"+node.id);
+      
       });
       this.canvas.on('system.canvas.click', () => {
         this.canvas.unfocus();
