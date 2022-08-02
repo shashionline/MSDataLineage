@@ -1,6 +1,6 @@
 {
   "name": "msdatalineage",
-  "version": "1.0.3",
+  "version": "1.0.8",
   "description": "MSDataLinage-",
   "main": "dist/index.js",
   "pack": "pack/index.js",

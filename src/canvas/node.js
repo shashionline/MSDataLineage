@@ -1,4 +1,5 @@
 import {Node} from 'butterfly-dag';
+
 import * as ReactDOM from 'react-dom';
 import $ from 'jquery';
 import * as _ from 'lodash';
@@ -10,6 +11,8 @@ import {
   StarOutlined,
   NodeExpandOutlined,
 } from "@ant-design/icons";
+
+import { Popover, Button } from 'antd';
 
 export default class TableNode extends Node {
   constructor(opts) {
@@ -44,11 +47,14 @@ export default class TableNode extends Node {
 
   }
   draw(obj) {
+    let title = _.get(this, 'options.name');
     let _dom = obj.dom;
     if (!_dom) {
       _dom = $('<div></div>')
         .attr('class', 'node table-node')
+        .attr('title', title)
         .attr('id', obj.name);
+       // _dom.render(this.getTootTip(title));
     }
 
     const node = $(_dom);
@@ -106,18 +112,27 @@ export default class TableNode extends Node {
   _createTableName(container = $(this.dom)) {
     let title = _.get(this, 'options.name');
     let id = _.get(this, 'options.id');
+    let ntype = _.get(this, 'options.type');
     let titleRender = _.get(this, 'options._titleRender');
     let operator = _.get(this, 'options._operator');
-    let titleCom = $(`<div class="title-con"   title="${id}"></div>`);
+    let titleCom = $(`<div class="title-con" ></div>`);
     let titleDom = null;
-    let schema = id.split(".", 2);
+    let schema = id.split("~");
     // 渲染title
     if (titleRender) {
-      titleDom = $(`<div class="title"></div>`);
-      ReactDOM.render(titleRender(title, this,schema), titleDom[0]);
+
+      let nicon ="table.png" ;
+      if(ntype){
+        nicon=ntype+".png";
+      }
+
+      titleDom = $(`<div class="title"  ></div>`);
+
+      ReactDOM.render(titleRender(title, this,schema,ntype,nicon), titleDom[0]);
+      
     } else if (title) {
       
-      titleDom = $(`<div class="title" title="${id}"><image href="https://raw.githubusercontent.com/linkedin/datahub/master/datahub-web-react/src/images/bigquerylogo.png" height="32" width="32" x="-84" y="-16"></image>${title}<div>`);
+      titleDom = $(`<div class="title" >${title}<div>`);
       
       titleDom.css({
         'height': this.TITLE_HEIGHT + 'px',
@@ -129,16 +144,21 @@ export default class TableNode extends Node {
     // 渲染操作按钮
     let operatorDom = null;
     if (operator) {
+      
       operatorDom = $(`<div class="operator"></div>`);
+      var loopvar =1;
       operator.forEach((item) => {
-        let operatorItemDom = $(`<div class="operator-item"></div>`);
+        let operatorItemDom = $(`<div class="operator-item${loopvar}"></div>`);
         ReactDOM.render(item.icon, operatorItemDom[0]);
         if (item.onClick) {
           operatorItemDom.on('click', item.onClick.bind(this, this.options, this));
         }
-        operatorDom.append(operatorItemDom);
+        titleCom.append(operatorItemDom);
+        loopvar += 1;
+        //operatorDom.append(operatorItemDom);
       });
-      titleCom.append(operatorDom);
+      //ReactDOM.render(this.getTootTip(schema), operatorDom[0]);
+      //titleCom.append(operatorDom);
     }
 
     let leftPoint = $('<div class="point left-point"></div>');
@@ -222,15 +242,7 @@ export default class TableNode extends Node {
       });
 
       this.fieldsList = this.fieldsList.concat(result);
-    } else {
-      const _emptyContent = _.get(this.options, '_emptyContent');
-      const noDataTree = emptyDom({
-        content: _emptyContent,
-        width: this.options._emptyWidth
-      });
-      container.append(noDataTree);
-      this.height = $(container).outerHeight();
-    }
+    } 
 
     return result;
   }
@@ -299,6 +311,11 @@ export default class TableNode extends Node {
         }
       });
     });
+  }
+
+  getTootTip(schema){
+    //return <Popover content={schema} title="Title"> </Popover>;
+            
   }
 
 }
